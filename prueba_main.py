@@ -12,12 +12,6 @@ while True:
     linea = ser.readline().decode().strip()
     print(linea)
 
-    # Leer acumulados enviados y recibidos
-    if "Enviados_global:" in linea:
-        enviados_global = int(linea.split(":")[1].strip())
-    elif "Recibidos_global:" in linea:
-        recibidos_global = int(linea.split(":")[1].strip())
-
     # Leer RTT promedio
     if "ms" in linea:
         rtt = int(linea.split()[0])
@@ -32,9 +26,6 @@ while True:
             #Luego calcular y mostrar los indicadores
             print("Ping promedio:", calcular_ping(rtts), "ms")
             print("Jitter:", calcular_jitter(rtts), "ms")
-            print("Pérdida global:", calcular_perdida(enviados_global, recibidos_global), "%")
 
             # Reiniciar para el siguiente ciclo
             rtts.clear()
-            enviados_global = 0
-            recibidos_global = 0
