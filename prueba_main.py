@@ -1,7 +1,8 @@
 
 import serial
 import re
-from indicadores import calcular_ping, calcular_jitter, calcular_perdida
+from indicadores import calcular_ping, calcular_jitter, calcular_perdida, calcular_qoe_porcentaje, calcular_mos
+
 
 # Configurar el puerto serial
 ser = serial.Serial('COM13', 115200)
@@ -12,7 +13,7 @@ total_recibidos = 0
 
 # Métricas por bloque
 rtts = []           # Guarda la latencia promedio de cada bloque
-bloques_max = 2    # Procesar 10 bloques
+bloques_max = 5    # Procesar 10 bloques
 bloques_proc = 0
 
 # Estado del bloque actual
@@ -73,11 +74,24 @@ while True:
             for i, valor in enumerate(rtts, start=1):
                 print(f"RTT {i}: {valor} ms")
 
-            print(f"Ping promedio: {calcular_ping(rtts)} ms")
-            print(f"Jitter: {calcular_jitter(rtts)} ms")
-            print(f"Pérdida acumulada: {calcular_perdida(total_enviados, total_recibidos)} %")
-            print(f"Total enviados acumulados: {total_enviados}")
-            print(f"Total recibidos acumulados: {total_recibidos}")
+            ping_promedio = calcular_ping(rtts)
+            jitter = calcular_jitter(rtts)
+            perdida_total = calcular_perdida(total_enviados, total_recibidos)
+
+            print(f"\nPing promedio: {ping_promedio} ms")
+            print(f"Jitter: {jitter} ms")
+            print(f"Pérdida acumulada: {perdida_total} %")
+            print(f"Total enviados: {total_enviados}")
+            print(f"Total recibidos: {total_recibidos}")
+
+             # --- QoE y MOS ---
+            qoe_pct = calcular_qoe_porcentaje(ping_promedio, jitter, perdida_total)
+            mos = calcular_mos(ping_promedio, jitter, perdida_total, velocidad_mbps=2.0)  # ajusta velocidad según tu prueba
+
+            print(f"\nQoE estimado: {qoe_pct}%")
+            print(f"MOS estimado: {mos}")
+
+
             break
 
         # Reiniciar estado del bloque (no los acumulados globales)

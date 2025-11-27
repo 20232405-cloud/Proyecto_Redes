@@ -23,15 +23,22 @@ print(f"Velocidad de subida: {velocidad_mbps:.2f} Mbps")
 print("📥 Recibiendo datos desde ESP32...")
 start = time.time()
 recibidos = 0
-while recibidos < len(data):
-    chunk = s.recv(4096)
-    if not chunk:
-        break
-    recibidos += len(chunk)
-end = time.time()
+try:
+    while True:
+        chunk = s.recv(4096)
+        if not chunk:   # servidor cerró la conexión
+            break
+        recibidos += len(chunk)
+except ConnectionResetError:
+    # El servidor cerró la conexión de forma abrupta
+    print("⚠️ Conexión cerrada por el servidor durante la recepción.")
+finally:
+    end = time.time()
+    tiempo = end - start
+    if tiempo > 0:
+        velocidad_mbps = (recibidos * 8) / (tiempo * 1e6)
+        print(f"Total recibido: {recibidos} bytes")
+        print(f"Velocidad de descarga: {velocidad_mbps:.2f} Mbps")
+    s.close()
 
-tiempo = end - start
-velocidad_mbps = (recibidos * 8) / (tiempo * 1e6)
-print(f"Velocidad de descarga: {velocidad_mbps:.2f} Mbps")
-
-s.close()
+# Cerrar el socket
