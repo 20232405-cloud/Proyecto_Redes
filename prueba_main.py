@@ -1,6 +1,7 @@
 
 import serial
 import re
+import json
 from indicadores import calcular_ping, calcular_jitter, calcular_perdida, calcular_qoe_porcentaje, calcular_mos
 
 
@@ -91,6 +92,21 @@ while True:
             print(f"\nQoE estimado: {qoe_pct}%")
             print(f"MOS estimado: {mos}")
 
+            metricas = {
+                "rtts": rtts,
+                "ping_promedio": ping_promedio,
+                "jitter": jitter,
+                "perdida_total": perdida_total,
+                "total_enviados": total_enviados,
+                "total_recibidos": total_recibidos,
+                "qoe": qoe_pct,
+                "mos": mos
+            }
+
+            with open("metricas.json", "w") as f:
+                json.dump(metricas, f, indent=4)
+
+            print("\nmetricas.json generado exitosamente.")
 
             break
 
